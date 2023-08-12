@@ -6,8 +6,7 @@ import (
 	"io"
 	"net"
 	"sync"
-
-	"github.com/RaymondCode/simple-demo/controller"
+	"SimpleDouyin/controller"
 )
 
 var chatConnMap = sync.Map{}
@@ -47,7 +46,7 @@ func process(conn net.Conn) {
 
 		var event = controller.MessageSendEvent{}
 		_ = json.Unmarshal(buf[:n], &event)
-		fmt.Printf("Receive Message：%+v\n", event)
+		fmt.Printf("Receive Message: %+v\n", event)
 
 		fromChatKey := fmt.Sprintf("%d_%d", event.UserId, event.ToUserId)
 		if len(event.MsgContent) == 0 {

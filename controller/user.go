@@ -32,31 +32,44 @@ type UserResponse struct {
 	User User `json:"user"`
 }
 
+// 注册函数
 func Register(c *gin.Context) {
+	// 从URL中读取用户输入的参数：用户名和密码
 	username := c.Query("username")
 	password := c.Query("password")
 
 	token := username + password
 
 	if _, exist := usersLoginInfo[token]; exist {
+		// 若用户存在
 		c.JSON(http.StatusOK, UserLoginResponse{
 			Response: Response{StatusCode: 1, StatusMsg: "User already exist"},
 		})
 	} else {
-		atomic.AddInt64(&userIdSequence, 1)
+		// 若用户不存在
+		atomic.AddInt64(&userIdSequence, 1)	// 对用户ID进行原子操作+1
+		// 创建新的User结构
 		newUser := User{
-			Id:   userIdSequence,
-			Name: username,
+			Id:   			userIdSequence, // 用户ID
+			Name: 			username,		// 用户名
+			FollowCount: 	0,				// 用户关注的人数
+			FollowerCount: 	0,				// 关注用户的人数
+			IsFollow: 		false,			// 是否关注
 		}
 		usersLoginInfo[token] = newUser
+
+		// 数据库
+
+		// 返回响应
 		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: Response{StatusCode: 0},
+			Response: Response{StatusCode: 0, StatusMsg: "Success",},
 			UserId:   userIdSequence,
 			Token:    username + password,
 		})
 	}
 }
 
+// 登录
 func Login(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
@@ -76,6 +89,7 @@ func Login(c *gin.Context) {
 	}
 }
 
+// 获取用户信息
 func UserInfo(c *gin.Context) {
 	token := c.Query("token")
 
