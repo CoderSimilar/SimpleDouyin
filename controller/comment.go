@@ -5,14 +5,14 @@ import (
 	"net/http"
 )
 
-type CommentListResponse struct {
-	Response
-	CommentList []Comment `json:"comment_list,omitempty"`
-}
-
 type CommentActionResponse struct {
 	Response
 	Comment Comment `json:"comment,omitempty"`
+}
+
+type CommentListResponse struct {
+	Response
+	CommentList []Comment `json:"comment_list,omitempty"`
 }
 
 // CommentAction no practical effect, just check if token is valid
@@ -22,13 +22,15 @@ func CommentAction(c *gin.Context) {
 
 	if user, exist := usersLoginInfo[token]; exist {
 		if actionType == "1" {
-			text := c.Query("comment_text")
+			id := c.Query("id")
+			text := c.Query("content")
+			createDate := c.Query("create_date")
 			c.JSON(http.StatusOK, CommentActionResponse{Response: Response{StatusCode: 0},
 				Comment: Comment{
-					Id:         1,
+					Id:         id,
 					User:       user,
 					Content:    text,
-					CreateDate: "05-01",
+					CreateDate: createDate,
 				}})
 			return
 		}
