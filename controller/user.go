@@ -1,106 +1,135 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
+	"SimpleDouyin/module"
+	"SimpleDouyin/repository/mysql"
+	"SimpleDouyin/service"
+	"errors"
 	"net/http"
-	"sync/atomic"
+
+	"github.com/gin-gonic/gin"
 )
 
 // usersLoginInfo use map to store user info, and key is username+password for demo
 // user data will be cleared every time the server starts
 // test data: username=zhanglei, password=douyin
-var usersLoginInfo = map[string]User{
+var usersLoginInfo = map[string]module.User{
 	"zhangleidouyin": {
-		Id:            1,
-		Name:          "zhanglei",
-		FollowCount:   10,
-		FollowerCount: 5,
-		IsFollow:      true,
+		UserId: 1,
+		Name:   "zhanglei",
+		//FollowCount:   10,
+		//FollowerCount: 5,
+		//IsFollow:      true,
 	},
 }
 
-var userIdSequence = int64(1)
+// var userIdSequence = int64(1)
 
-type UserLoginResponse struct {
-	Response
-	UserId int64  `json:"user_id,omitempty"`
-	Token  string `json:"token"`
-}
-
-type UserResponse struct {
-	Response
-	User User `json:"user"`
-}
-
-// 注册函数
 func Register(c *gin.Context) {
-	// 从URL中读取用户输入的参数：用户名和密码
+	// 1.获取参数和参数校验
 	username := c.Query("username")
 	password := c.Query("password")
-
-	token := username + password
-
-	if _, exist := usersLoginInfo[token]; exist {
-		// 若用户存在
-		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: Response{StatusCode: 1, StatusMsg: "User already exist"},
+	if len(username) == 0 || len(password) < 5 {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "parameter error",
 		})
-	} else {
-		// 若用户不存在
-		atomic.AddInt64(&userIdSequence, 1)	// 对用户ID进行原子操作+1
-		// 创建新的User结构
-		newUser := User{
-			Id:   			userIdSequence, // 用户ID
-			Name: 			username,		// 用户名
-			FollowCount: 	0,				// 用户关注的人数
-			FollowerCount: 	0,				// 关注用户的人数
-			IsFollow: 		false,			// 是否关注
+		return
+	}
+
+	// 2.业务处理
+	newUser, err := service.Register(username, password)
+
+	if err != nil {
+		// 用户不存在
+		if errors.Is(err, mysql.ErrorUserExist) {
+			c.JSON(http.StatusOK, module.UserLoginResponse{
+				Response: module.Response{StatusCode: 1, StatusMsg: "User already exist"},
+			})
+			return
 		}
-		usersLoginInfo[token] = newUser
-
-		// 数据库
-
-		// 返回响应
-		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: Response{StatusCode: 0, StatusMsg: "Success",},
-			UserId:   userIdSequence,
-			Token:    username + password,
+		// 注册失败
+		if errors.Is(err, mysql.ErrorRegister) {
+			c.JSON(http.StatusOK, module.UserLoginResponse{
+				Response: module.Response{StatusCode: 1, StatusMsg: "User registration failed"},
+			})
+			return
+		}
+		// 其他错误
+		c.JSON(http.StatusOK, module.UserLoginResponse{
+			Response: module.Response{StatusCode: 1, StatusMsg: "Server Busy"},
 		})
+		return
 	}
+
+	// 3.返回响应
+	c.JSON(http.StatusOK, module.UserLoginResponse{
+		// 注册成功
+		Response: module.Response{StatusCode: 0},
+		UserId:   newUser.UserId,
+		Token:    newUser.Token,
+	})
 }
 
-// 登录
 func Login(c *gin.Context) {
+	// 1.获取参数并验证
 	username := c.Query("username")
 	password := c.Query("password")
-
-	token := username + password
-
-	if user, exist := usersLoginInfo[token]; exist {
-		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: Response{StatusCode: 0},
-			UserId:   user.Id,
-			Token:    token,
+	if len(username) == 0 || len(password) < 5 {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "parameter error",
 		})
-	} else {
-		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
-		})
+		return
 	}
+
+	// 2.业务处理
+	user, err := service.Login(username, password)
+	if err != nil {
+		// 用户不存在
+		if errors.Is(err, mysql.ErrorUserInfo) {
+			c.JSON(http.StatusOK, module.UserLoginResponse{
+				Response: module.Response{StatusCode: 1, StatusMsg: "User doesn't exist or Error password"},
+			})
+			return
+		}
+
+		// 其他错误
+		c.JSON(http.StatusOK, module.UserLoginResponse{
+			Response: module.Response{StatusCode: 1, StatusMsg: "Server Busy"},
+		})
+		return
+	}
+
+	// 3.返回响应
+	c.JSON(http.StatusOK, module.UserLoginResponse{
+		Response: module.Response{StatusCode: 0},
+		UserId:   user.UserId,
+		Token:    user.Token,
+	})
+
 }
 
-// 获取用户信息
 func UserInfo(c *gin.Context) {
-	token := c.Query("token")
-
-	if user, exist := usersLoginInfo[token]; exist {
-		c.JSON(http.StatusOK, UserResponse{
-			Response: Response{StatusCode: 0},
-			User:     user,
+	// 1.获取当前用户的id
+	userId, err := GetCurrentUserId(c)
+	if err != nil {
+		c.JSON(http.StatusOK, module.UserResponse{
+			Response: module.Response{StatusCode: 1, StatusMsg: "User need login"},
 		})
-	} else {
-		c.JSON(http.StatusOK, UserResponse{
-			Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
-		})
+		return
 	}
+
+	// 2.业务逻辑
+	user, err := service.UserInfo(userId)
+
+	if err != nil {
+		c.JSON(http.StatusOK, module.UserResponse{
+			Response: module.Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, module.UserResponse{
+		Response: module.Response{StatusCode: 0},
+		User:     *user,
+	})
 }

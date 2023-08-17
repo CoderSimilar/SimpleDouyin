@@ -1,19 +1,22 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
+	"SimpleDouyin/module"
+	"SimpleDouyin/repository/mysql"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type LikeActionResponse struct {
-	Response
+	module.Response
 }
 
 type LikeListResponse struct {
-	Response
-	VideoList []Video
+	module.Response
+	VideoList []module.Video
 }
 
 // LikeAction has no practical effect, just check if token is valid
@@ -21,14 +24,14 @@ func LikeAction(c *gin.Context) {
 	token := c.Query("token")
 
 	if _, exist := usersLoginInfo[token]; exist {
-		c.JSON(http.StatusOK, Response{StatusCode: 0})
+		c.JSON(http.StatusOK, module.Response{StatusCode: 0})
 	} else {
-		c.JSON(http.StatusOK, Response{StatusCode: 1, StatusMsg: "User doesn't exist"})
+		c.JSON(http.StatusOK, module.Response{StatusCode: 1, StatusMsg: "User doesn't exist"})
 	}
 
 	videoId, err := strconv.Atoi(c.Query("video_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Response{StatusCode: 1, StatusMsg: err.Error()})
+		c.JSON(http.StatusBadRequest, module.Response{StatusCode: 1, StatusMsg: err.Error()})
 	}
 	actionType := c.Query("action_type")
 
@@ -36,15 +39,15 @@ func LikeAction(c *gin.Context) {
 	case "1":
 		err = like(videoId)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, Response{StatusCode: 1, StatusMsg: err.Error()})
+			c.JSON(http.StatusBadRequest, module.Response{StatusCode: 1, StatusMsg: err.Error()})
 		}
 	case "2":
 		err = cancelLike(videoId)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, Response{StatusCode: 1, StatusMsg: err.Error()})
+			c.JSON(http.StatusBadRequest, module.Response{StatusCode: 1, StatusMsg: err.Error()})
 		}
 	default:
-		c.JSON(http.StatusBadRequest, Response{StatusCode: 1, StatusMsg: "Illegal action-type"})
+		c.JSON(http.StatusBadRequest, module.Response{StatusCode: 1, StatusMsg: "Illegal action-type"})
 	}
 }
 
@@ -52,42 +55,42 @@ func LikeAction(c *gin.Context) {
 func LikeList(c *gin.Context) {
 	userId := c.Query("user_id")
 
-	var relationList []UserVideoRelation
-	var likedVideoList []Video
+	var relationList []module.UserVideoRelation
+	var likedVideoList []module.Video
 
-	result := db.Find(&relationList, "UserId = ? AND IsLiked = ?", userId, true)
+	result := mysql.DB.Find(&relationList, "UserId = ? AND IsLiked = ?", userId, true)
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, Response{StatusCode: 1, StatusMsg: result.Error.Error()})
+		c.JSON(http.StatusBadRequest, module.Response{StatusCode: 1, StatusMsg: result.Error.Error()})
 	}
 	for _, r := range relationList {
-		var video Video
-		result = db.Find(&video, "VideoId = ?", r.VideoId)
+		var video module.Video
+		result = mysql.DB.Find(&video, "VideoId = ?", r.VideoId)
 		if result.Error != nil {
-			c.JSON(http.StatusBadRequest, Response{StatusCode: 1, StatusMsg: result.Error.Error()})
+			c.JSON(http.StatusBadRequest, module.Response{StatusCode: 1, StatusMsg: result.Error.Error()})
 		}
 		likedVideoList = append(likedVideoList, video)
 	}
-	c.JSON(http.StatusOK, LikeListResponse{Response{StatusCode: 0, StatusMsg: "List success"}, likedVideoList})
+	c.JSON(http.StatusOK, LikeListResponse{module.Response{StatusCode: 0, StatusMsg: "List success"}, likedVideoList})
 }
 
 func like(videoId int) error {
-	var video Video
-	var relation UserVideoRelation
-	result := db.First(&video, videoId)
+	var video module.Video
+	var relation module.UserVideoRelation
+	result := mysql.DB.First(&video, videoId)
 	if result.Error != nil {
 		return result.Error
 	}
-	result = db.First(&relation, videoId)
+	result = mysql.DB.First(&relation, videoId)
 	if result.Error != nil {
 		return result.Error
 	}
 
-	video.LikeCount++
-	video.UpdateDatetime = time.Now()
+	video.FavoriteCount++
+	video.UpdateTime = time.Now()
 	relation.IsLiked = true
 	relation.UpdateDatetime = time.Now()
 
-	result = db.Save(&video)
+	result = mysql.DB.Save(&video)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -96,23 +99,23 @@ func like(videoId int) error {
 }
 
 func cancelLike(videoId int) error {
-	var video Video
-	var relation UserVideoRelation
-	result := db.First(&video, videoId)
+	var video module.Video
+	var relation module.UserVideoRelation
+	result := mysql.DB.First(&video, videoId)
 	if result.Error != nil {
 		return result.Error
 	}
-	result = db.First(&relation, videoId)
+	result = mysql.DB.First(&relation, videoId)
 	if result.Error != nil {
 		return result.Error
 	}
 
-	video.LikeCount--
-	video.UpdateDatetime = time.Now()
+	video.FavoriteCount--
+	video.UpdateTime = time.Now()
 	relation.IsLiked = false
 	relation.UpdateDatetime = time.Now()
 
-	result = db.Save(&video)
+	result = mysql.DB.Save(&video)
 	if result.Error != nil {
 		return result.Error
 	}

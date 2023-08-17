@@ -1,12 +1,12 @@
 package service
 
 import (
+	"SimpleDouyin/module"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net"
 	"sync"
-	"SimpleDouyin/controller"
 )
 
 var chatConnMap = sync.Map{}
@@ -44,7 +44,7 @@ func process(conn net.Conn) {
 			continue
 		}
 
-		var event = controller.MessageSendEvent{}
+		var event = module.MessageSendEvent{}
 		_ = json.Unmarshal(buf[:n], &event)
 		fmt.Printf("Receive Message: %+v\n", event)
 
@@ -61,7 +61,7 @@ func process(conn net.Conn) {
 			continue
 		}
 
-		pushEvent := controller.MessagePushEvent{
+		pushEvent := module.MessagePushEvent{
 			FromUserId: event.UserId,
 			MsgContent: event.MsgContent,
 		}
