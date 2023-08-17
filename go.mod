@@ -1,14 +1,20 @@
 module SimpleDouyin
 
-go 1.17
+go 1.19
 
 require (
+	github.com/bwmarrin/snowflake v0.3.0
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gavv/httpexpect/v2 v2.8.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/stretchr/testify v1.7.0
+	gorm.io/gorm v1.25.3
 )
 
-require github.com/go-sql-driver/mysql v1.7.0 // indirect
+require (
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	github.com/jinzhu/gorm v1.9.16 // indirect
+)
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
@@ -52,6 +58,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	gorm.io/driver/mysql v1.5.1
-	gorm.io/gorm v1.25.2
 	moul.io/http2curl/v2 v2.3.0 // indirect
 )
