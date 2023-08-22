@@ -2,7 +2,7 @@ package controller
 
 import (
 	"SimpleDouyin/module"
-	"SimpleDouyin/repository/mysql"
+	"SimpleDouyin/repository"
 	"SimpleDouyin/service"
 	"errors"
 	"net/http"
@@ -41,14 +41,14 @@ func Register(c *gin.Context) {
 
 	if err != nil {
 		// 用户不存在
-		if errors.Is(err, mysql.ErrorUserExist) {
+		if errors.Is(err, repository.ErrorUserExist) {
 			c.JSON(http.StatusOK, module.UserLoginResponse{
 				Response: module.Response{StatusCode: 1, StatusMsg: "User already exist"},
 			})
 			return
 		}
 		// 注册失败
-		if errors.Is(err, mysql.ErrorRegister) {
+		if errors.Is(err, repository.ErrorRegister) {
 			c.JSON(http.StatusOK, module.UserLoginResponse{
 				Response: module.Response{StatusCode: 1, StatusMsg: "User registration failed"},
 			})
@@ -85,7 +85,7 @@ func Login(c *gin.Context) {
 	user, err := service.Login(username, password)
 	if err != nil {
 		// 用户不存在
-		if errors.Is(err, mysql.ErrorUserInfo) {
+		if errors.Is(err, repository.ErrorUserInfo) {
 			c.JSON(http.StatusOK, module.UserLoginResponse{
 				Response: module.Response{StatusCode: 1, StatusMsg: "User doesn't exist or Error password"},
 			})

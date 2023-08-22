@@ -2,9 +2,9 @@ package controller
 
 import (
 	"SimpleDouyin/module"
-	"fmt"
+	"SimpleDouyin/service"
 	"net/http"
-	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,16 +16,41 @@ type VideoListResponse struct {
 
 // Publish check token then save upload file to public directory
 func Publish(c *gin.Context) {
+	// 1.获取参数并验证参数
+	video := new(module.Video)
+	video.Title = c.PostForm("title")
 
-	// 获取用户鉴权token
-	token := c.PostForm("token")
-	// 检查用户是否已经注册
-	if _, exist := usersLoginInfo[token]; !exist {
-		c.JSON(http.StatusOK, module.Response{StatusCode: 1, StatusMsg: "User doesn't exist"})
+	userId, err := GetCurrentUserId(c) // 获取视频发布者的ID
+	if err != nil {
+		c.JSON(http.StatusOK, module.Response{
+			StatusCode: 1,
+			StatusMsg:  "User need login",
+		})
+	}
+	video.AuthorId = userId
+
+	// 2.业务处理
+	if err := service.Publish(video, c); err != nil {
+		c.JSON(http.StatusOK, module.Response{
+			StatusCode: 1,
+			StatusMsg:  "Upload error",
+		})
 		return
 	}
-	// 获取用户发布视频数据
-	data, err := c.FormFile("data")
+
+	// 3.返回响应
+	c.JSON(http.StatusOK, module.Response{
+		StatusCode: 0,
+		StatusMsg:  "Work is uploaded successfully",
+	})
+}
+
+// PublishList all users have same publish video list
+// PublishList 查询到user的所有视频，使用列表返回
+func PublishList(c *gin.Context) {
+	// 1.获取userId
+	curUserId := c.Query("user_id")
+	userId, err := strconv.ParseInt(curUserId, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusOK, module.Response{
 			StatusCode: 1,
@@ -34,14 +59,9 @@ func Publish(c *gin.Context) {
 		return
 	}
 
-	// 业务处理
-
-	filename := filepath.Base(data.Filename)
-	user := usersLoginInfo[token]
-	finalName := fmt.Sprintf("%d_%s", user.UserId, filename)
-	saveFile := filepath.Join("./public/", finalName)
-
-	if err := c.SaveUploadedFile(data, saveFile); err != nil {
+	// 2.业务处理
+	data, err := service.PublishList(userId)
+	if err != nil {
 		c.JSON(http.StatusOK, module.Response{
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
@@ -49,18 +69,11 @@ func Publish(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, module.Response{
-		StatusCode: 0,
-		StatusMsg:  finalName + " uploaded successfully",
-	})
-}
-
-// PublishList all users have same publish video list
-func PublishList(c *gin.Context) {
+	// 3.返回响应
 	c.JSON(http.StatusOK, VideoListResponse{
 		Response: module.Response{
 			StatusCode: 0,
 		},
-		VideoList: DemoVideos,
+		VideoList: data.AllVideoes,
 	})
 }

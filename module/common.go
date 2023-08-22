@@ -25,6 +25,11 @@ type Video struct {
 	StorePath     	string
 }
 
+type VideoList struct {
+	AuthorId   int64 `json:"-"`
+	AllVideoes []Video
+}
+
 type UserVideoRelation struct {
 	Id             int64     `json:"id,omitempty" gorm:"column:Id;primaryKey"`
 	UserId         int       `json:"user_id" gorm:"column:UserId"`

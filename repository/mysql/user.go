@@ -4,7 +4,7 @@ import (
 	"SimpleDouyin/module"
 	"crypto/md5"
 	"encoding/hex"
-
+	"SimpleDouyin/repository"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func CheckUserExist(username string) (err error) {
 		return nil
 	}
 	// first查询不到返回错误，而find不会返回错误
-	return ErrorUserExist
+	return repository.ErrorUserExist
 }
 
 func InsertUser(newUser *module.User) (err error) {
