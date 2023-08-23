@@ -5,6 +5,7 @@ import (
 	"SimpleDouyin/repository"
 	"SimpleDouyin/service"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -101,7 +102,7 @@ func Login(c *gin.Context) {
 
 	// 3.返回响应
 	c.JSON(http.StatusOK, module.UserLoginResponse{
-		Response: module.Response{StatusCode: 0},
+		Response: module.Response{StatusCode: 0, StatusMsg: "successfully"},
 		UserId:   user.UserId,
 		Token:    user.Token,
 	})
@@ -120,7 +121,7 @@ func UserInfo(c *gin.Context) {
 
 	// 2.业务逻辑
 	user, err := service.UserInfo(userId)
-
+	fmt.Printf("user = %v\n", user)
 	if err != nil {
 		c.JSON(http.StatusOK, module.UserResponse{
 			Response: module.Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
@@ -129,7 +130,7 @@ func UserInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, module.UserResponse{
-		Response: module.Response{StatusCode: 0},
+		Response: module.Response{StatusCode: 0, StatusMsg: "successfully"},
 		User:     *user,
 	})
 }

@@ -12,22 +12,22 @@ type Response struct {
 }
 
 type Video struct {
-	gorm.Model    			`json:"-"`
-	Id       		int64  	`json:"id,omitempty" gorm:"unique;not null;index:idx_video_id"`
-	AuthorId      	int64  	`json:"author" gorm:"not null"`
-	Title         	string 	`json:"title"`
-	PlayUrl       	string 	`json:"play_url,omitempty" binding:"required"`
-	CoverUrl      	string 	`json:"cover_url,omitempty" binding:"required"`
-	FavoriteCount 	int64  	`json:"favorite_count,omitempty"`
-	CommentCount  	int64  	`json:"comment_count,omitempty"`
-	IsFavorite    	bool   	`json:"is_favorite,omitempty"`
-	UpdateTime    	time.Time `json:"update_datetime,omitempty"`
-	StorePath     	string
+	gorm.Model    `json:"-"`
+	Id            int64  `json:"id,omitempty" gorm:"unique;not null;index:idx_video_id"`
+	AuthorId      int64  `json:"author_id" gorm:"not null"`
+	Author 		  User   `json:"author" gorm:"foreignKry:AuthorId"`
+	Title         string `json:"title"`
+	PlayUrl       string `json:"play_url,omitempty" binding:"required"`
+	CoverUrl      string `json:"cover_url,omitempty" binding:"required"`
+	FavoriteCount int64  `json:"favorite_count,omitempty"`
+	CommentCount  int64  `json:"comment_count,omitempty"`
+	IsFavorite    bool   `json:"is_favorite,omitempty"`
+	StorePath     string
 }
 
 type VideoList struct {
-	AuthorId   int64 `json:"-"`
-	AllVideoes []Video
+	AuthorId   	int64 `json:"-"`
+	AllVideoes 	[]Video
 }
 
 type UserVideoRelation struct {
@@ -57,19 +57,34 @@ type Like struct {
 }
 
 type User struct {
+	// gorm.Model      `json:"-"`
+	// UserId          int64  `json:"id,omitempty" gorm:"index:idx_user_id"`                           // 用户id
+	// Name            string `json:"name" binding:"required" gorm:"unique;not null;index:idx_name"` 	// 用户名称
+	// Password        string `json:"-" binding:"required" gorm:"not null"`
+	// FollowCount     int64  `json:"follow_count" gorm:"default:0"` 	// 关注总数
+	// FollowerCount   int64  `json:"follower_count"`                  // 粉丝总数
+	// IsFollow        bool   `json:"is_follow"`                  		// true-已关注，false-未关注
+	// Avatar          string `json:"avatar"`                  		// 用户头像
+	// BackgroundImage string `json:"background_image"`                // 用户个人页顶部大图
+	// Signature       string `json:"signature"`                  		// 个人简介
+	// TotalFavorited  string `json:"total_favorited"`                 // 获赞数量
+	// WorkCount       int    `json:"work_count"`                  	// 作品数量
+	// FavoriteCount   int    `json:"favorite_count"`                  // 点赞数量
+	// Token           string `json:"-" gorm:"-"`
+
 	gorm.Model      `json:"-"`
-	UserId          int64  `json:"id,omitempty" gorm:"index:idx_user_id"`                                   // 用户id
-	Name            string `json:"name,omitempty" binding:"required" gorm:"unique;not null;index:idx_name"` // 用户名称
+	UserId          int64  `json:"id,omitempty" gorm:"index:idx_user_id"`                           // 用户id
+	Name            string `json:"name" binding:"required" gorm:"unique;not null;index:idx_name"` 	// 用户名称
 	Password        string `json:"-" binding:"required" gorm:"not null"`
-	FollowCount     int64  `json:"-" gorm:"default:0"` // 关注总数
-	FollowerCount   int64  `json:"-"`                  // 粉丝总数
-	IsFollow        bool   `json:"-"`                  // true-已关注，false-未关注
-	Avatar          string `json:"-"`                  //用户头像
-	BackgroundImage string `json:"-"`                  //用户个人页顶部大图
-	Signature       string `json:"-"`                  //个人简介
-	TotalFavorited  string `json:"-"`                  //获赞数量
-	WorkCount       int    `json:"-"`                  //作品数量
-	FavoriteCount   int    `json:"-"`                  //点赞数量
+	FollowCount     int64  `json:"follow_count" gorm:"default:0"` 	// 关注总数
+	FollowerCount   int64  `json:"follower_count" gorm:"default:0"`                  // 粉丝总数
+	IsFollow        bool   `json:"is_follow" gorm:"default:true"`                  		// true-已关注，false-未关注
+	Avatar          string `json:"avatar" gorm:"default:null"`                  		// 用户头像
+	BackgroundImage string `json:"background_image"`                // 用户个人页顶部大图
+	Signature       string `json:"signature"`                  		// 个人简介
+	TotalFavorited  int    `json:"total_favorited" gorm:"default:0"`                 // 获赞数量
+	WorkCount       int    `json:"work_count"`                  	// 作品数量
+	FavoriteCount   int64    `json:"favorite_count"`                  // 点赞数量
 	Token           string `json:"-" gorm:"-"`
 }
 
