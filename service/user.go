@@ -2,6 +2,7 @@ package service
 
 import (
 	"SimpleDouyin/module"
+	"SimpleDouyin/repository"
 	"SimpleDouyin/repository/mysql"
 	"fmt"
 )
@@ -24,7 +25,7 @@ func Register(username string, password string) (newUser *module.User, err error
 	// 3.添加到数据库中
 	if err = mysql.InsertUser(newUser); err != nil {
 		// 用户注册失败
-		return nil, mysql.ErrorRegister
+		return nil, repository.ErrorRegister
 	}
 
 	// 4.生成token
@@ -45,7 +46,7 @@ func Login(username, password string) (user *module.User, err error) {
 
 	// 1.验证用户是否存在（用户名和密码）
 	if err = mysql.CheckLoginUser(user); err != nil {
-		return nil, mysql.ErrorUserInfo
+		return nil, repository.ErrorUserInfo
 	}
 
 	// 2.生成token

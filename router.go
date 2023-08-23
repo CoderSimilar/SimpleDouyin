@@ -28,6 +28,8 @@ func initRouter(r *gin.Engine) {
 	apiRouter.POST("/user/login/", controller.Login)
 
 
+	apiRouter.GET("/comment/list/", controller.CommentList)
+
 	// 使用中间件 -- 查询用户的信息，并返回
 	apiRouter.Use(module.AuthMiddleWare())
 	{
@@ -39,7 +41,6 @@ func initRouter(r *gin.Engine) {
 		apiRouter.POST("/favorite/action/", controller.FavoriteAction)
 		apiRouter.GET("/favorite/list/", controller.FavoriteList)
 		apiRouter.POST("/comment/action/", controller.CommentAction)
-		apiRouter.GET("/comment/list/", controller.CommentList)
 
 		// extra apis - II
 		apiRouter.POST("/relation/action/", controller.RelationAction)

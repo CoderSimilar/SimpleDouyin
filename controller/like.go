@@ -86,7 +86,7 @@ func like(videoId int) error {
 	}
 
 	video.FavoriteCount++
-	video.UpdateTime = time.Now()
+	// video.UpdateTime = time.Now()
 	relation.IsLiked = true
 	relation.UpdateDatetime = time.Now()
 
@@ -111,7 +111,7 @@ func cancelLike(videoId int) error {
 	}
 
 	video.FavoriteCount--
-	video.UpdateTime = time.Now()
+	// video.UpdateTime = time.Now()
 	relation.IsLiked = false
 	relation.UpdateDatetime = time.Now()
 

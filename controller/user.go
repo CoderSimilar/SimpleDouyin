@@ -2,9 +2,10 @@ package controller
 
 import (
 	"SimpleDouyin/module"
-	"SimpleDouyin/repository/mysql"
+	"SimpleDouyin/repository"
 	"SimpleDouyin/service"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -41,14 +42,14 @@ func Register(c *gin.Context) {
 
 	if err != nil {
 		// 用户不存在
-		if errors.Is(err, mysql.ErrorUserExist) {
+		if errors.Is(err, repository.ErrorUserExist) {
 			c.JSON(http.StatusOK, module.UserLoginResponse{
 				Response: module.Response{StatusCode: 1, StatusMsg: "User already exist"},
 			})
 			return
 		}
 		// 注册失败
-		if errors.Is(err, mysql.ErrorRegister) {
+		if errors.Is(err, repository.ErrorRegister) {
 			c.JSON(http.StatusOK, module.UserLoginResponse{
 				Response: module.Response{StatusCode: 1, StatusMsg: "User registration failed"},
 			})
@@ -85,7 +86,7 @@ func Login(c *gin.Context) {
 	user, err := service.Login(username, password)
 	if err != nil {
 		// 用户不存在
-		if errors.Is(err, mysql.ErrorUserInfo) {
+		if errors.Is(err, repository.ErrorUserInfo) {
 			c.JSON(http.StatusOK, module.UserLoginResponse{
 				Response: module.Response{StatusCode: 1, StatusMsg: "User doesn't exist or Error password"},
 			})
@@ -101,7 +102,7 @@ func Login(c *gin.Context) {
 
 	// 3.返回响应
 	c.JSON(http.StatusOK, module.UserLoginResponse{
-		Response: module.Response{StatusCode: 0},
+		Response: module.Response{StatusCode: 0, StatusMsg: "successfully"},
 		UserId:   user.UserId,
 		Token:    user.Token,
 	})
@@ -120,7 +121,7 @@ func UserInfo(c *gin.Context) {
 
 	// 2.业务逻辑
 	user, err := service.UserInfo(userId)
-
+	fmt.Printf("user = %v\n", user)
 	if err != nil {
 		c.JSON(http.StatusOK, module.UserResponse{
 			Response: module.Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
@@ -129,7 +130,7 @@ func UserInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, module.UserResponse{
-		Response: module.Response{StatusCode: 0},
+		Response: module.Response{StatusCode: 0, StatusMsg: "successfully"},
 		User:     *user,
 	})
 }

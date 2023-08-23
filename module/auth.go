@@ -9,10 +9,13 @@ import (
 func AuthMiddleWare() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		token := c.Query("token")
+		if token == "" {
+			token = c.PostForm("token")
+		}
 		mc, err := ParseToken(token)
 		if err != nil {
 			c.JSON(http.StatusOK, UserLoginResponse{
-				Response: Response{StatusCode: 1, StatusMsg: "Invalid token"},
+				Response: Response{StatusCode: 401, StatusMsg: "Invalid token"},
 			})
 
 			c.Abort()

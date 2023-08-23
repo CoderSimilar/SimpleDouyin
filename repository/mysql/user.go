@@ -4,7 +4,7 @@ import (
 	"SimpleDouyin/module"
 	"crypto/md5"
 	"encoding/hex"
-
+	"SimpleDouyin/repository"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func CheckUserExist(username string) (err error) {
 		return nil
 	}
 	// first查询不到返回错误，而find不会返回错误
-	return ErrorUserExist
+	return repository.ErrorUserExist
 }
 
 func InsertUser(newUser *module.User) (err error) {
@@ -37,13 +37,13 @@ func CheckLoginUser(user *module.User) (err error) {
 }
 
 func GetUserInfo(user *module.User) (err error) {
-	return DB.Where("user_id=?", user.UserId).First(user).Error
+	
+	return DB.Where("user_id=?", user.UserId).Find(user).Error
 }
 
 // encryptPassword 密码加密
 func encryptPassword(oPassword string) string {
-	h := md5.New()
+	h := md5.New() 
 	h.Write([]byte(secret)) // 加盐的字符串
-
 	return hex.EncodeToString(h.Sum([]byte(oPassword))) // 字节 转 十六进制
 }
