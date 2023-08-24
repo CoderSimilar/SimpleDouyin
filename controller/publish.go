@@ -1,59 +1,79 @@
 package controller
 
 import (
-	"fmt"
-	"github.com/gin-gonic/gin"
+	"SimpleDouyin/module"
+	"SimpleDouyin/service"
 	"net/http"
-	"path/filepath"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type VideoListResponse struct {
-	Response
-	VideoList []Video `json:"video_list"`
+	module.Response
+	VideoList []module.Video `json:"video_list"`
 }
 
 // Publish check token then save upload file to public directory
 func Publish(c *gin.Context) {
-	token := c.PostForm("token")
+	// 1.获取参数并验证参数
+	video := new(module.Video)
+	video.Title = c.PostForm("title")
 
-	if _, exist := usersLoginInfo[token]; !exist {
-		c.JSON(http.StatusOK, Response{StatusCode: 1, StatusMsg: "User doesn't exist"})
-		return
-	}
-
-	data, err := c.FormFile("data")
+	userId, err := GetCurrentUserId(c) // 获取视频发布者的ID
 	if err != nil {
-		c.JSON(http.StatusOK, Response{
+		c.JSON(http.StatusOK, module.Response{
 			StatusCode: 1,
-			StatusMsg:  err.Error(),
+			StatusMsg:  "User need login",
+		})
+	}
+	video.AuthorId = userId
+
+	// 2.业务处理
+	if err := service.Publish(video, c); err != nil {
+		c.JSON(http.StatusOK, module.Response{
+			StatusCode: 1,
+			StatusMsg:  "Upload error",
 		})
 		return
 	}
 
-	filename := filepath.Base(data.Filename)
-	user := usersLoginInfo[token]
-	finalName := fmt.Sprintf("%d_%s", user.Id, filename)
-	saveFile := filepath.Join("./public/", finalName)
-	if err := c.SaveUploadedFile(data, saveFile); err != nil {
-		c.JSON(http.StatusOK, Response{
-			StatusCode: 1,
-			StatusMsg:  err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
+	// 3.返回响应
+	c.JSON(http.StatusOK, module.Response{
 		StatusCode: 0,
-		StatusMsg:  finalName + " uploaded successfully",
+		StatusMsg:  "Work is uploaded successfully",
 	})
 }
 
 // PublishList all users have same publish video list
+// PublishList 查询到user的所有视频，使用列表返回
 func PublishList(c *gin.Context) {
+	// 1.获取userId
+	curUserId := c.Query("user_id")
+	userId, err := strconv.ParseInt(curUserId, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, module.Response{
+			StatusCode: 1,
+			StatusMsg:  err.Error(),
+		})
+		return
+	}
+
+	// 2.业务处理
+	data, err := service.PublishList(userId)
+	if err != nil {
+		c.JSON(http.StatusOK, module.Response{
+			StatusCode: 1,
+			StatusMsg:  err.Error(),
+		})
+		return
+	}
+
+	// 3.返回响应
 	c.JSON(http.StatusOK, VideoListResponse{
-		Response: Response{
+		Response: module.Response{
 			StatusCode: 0,
 		},
-		VideoList: DemoVideos,
+		VideoList: data.AllVideoes,
 	})
 }
