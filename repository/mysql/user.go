@@ -37,13 +37,13 @@ func CheckLoginUser(user *module.User) (err error) {
 }
 
 func GetUserInfo(user *module.User) (err error) {
-	return DB.Where("user_id=?", user.UserId).First(user).Error
+	
+	return DB.Where("user_id=?", user.UserId).Find(user).Error
 }
 
 // encryptPassword 密码加密
 func encryptPassword(oPassword string) string {
-	h := md5.New()
+	h := md5.New() 
 	h.Write([]byte(secret)) // 加盐的字符串
-
 	return hex.EncodeToString(h.Sum([]byte(oPassword))) // 字节 转 十六进制
 }

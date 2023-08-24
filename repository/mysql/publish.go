@@ -1,10 +1,11 @@
 package mysql
 
 import (
-	"errors"
-	"gorm.io/gorm"
 	"SimpleDouyin/module"
 	"SimpleDouyin/repository"
+	"errors"
+
+	"gorm.io/gorm"
 )
 
 func CheckVideoExist(authorId int64, playUrl string) (err error) {
@@ -27,7 +28,7 @@ func GetPublishListByUserId(authorId int64) (videolist *module.VideoList, err er
 	var videos []module.Video
 	err = DB.Where("author_id=?", authorId).Order("created_at desc").Find(&videos).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) { // find未找到
-		return nil, errors.New("user doest's have videos")
+		return nil, errors.New("user doesn't have videos")
 	}
 	videolist.AllVideoes = videos
 	return
