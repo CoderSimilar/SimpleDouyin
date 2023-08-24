@@ -1,9 +1,10 @@
 package main
 
 import (
-	"net/http"
-	"SimpleDouyin/module"
 	"SimpleDouyin/controller"
+	"SimpleDouyin/module"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,9 +27,10 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/feed/", controller.Feed)
 	apiRouter.POST("/user/register/", controller.Register)
 	apiRouter.POST("/user/login/", controller.Login)
-
-
+	
 	apiRouter.GET("/comment/list/", controller.CommentList)
+
+	
 
 	// 使用中间件 -- 查询用户的信息，并返回
 	apiRouter.Use(module.AuthMiddleWare())

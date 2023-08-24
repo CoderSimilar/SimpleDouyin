@@ -30,8 +30,8 @@ var (
 
 	frame = 1
 
-	videoPrefix = "http://47.102.144.228:8080/static/videos/"
-	coverPrefix = "http://47.102.144.228:8080/static/covers/"
+	videoPrefix = "http://127.0.0.1:8080/static/videos/"
+	coverPrefix = "http://127.0.0.1:8080/static/covers/"
 )
 
 func Publish(video *module.Video, c *gin.Context) (err error) {

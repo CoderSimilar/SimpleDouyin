@@ -69,7 +69,7 @@ type User struct {
 	Signature       string `json:"signature"`                  										// 个人简介
 	TotalFavorited  int    `json:"total_favorited" gorm:"default:0"`                 				// 获赞数量
 	WorkCount       int    `json:"work_count"`                  									// 作品数量
-	FavoriteCount   int64    `json:"favorite_count"`                  								// 点赞数量
+	FavoriteCount   int64  `json:"favorite_count"`                  								// 点赞数量
 	Token           string `json:"-" gorm:"-"`
 }
 

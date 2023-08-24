@@ -3,6 +3,7 @@ package controller
 import (
 	"SimpleDouyin/module"
 	"SimpleDouyin/service"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,6 +17,8 @@ type VideoListResponse struct {
 
 // Publish check token then save upload file to public directory
 func Publish(c *gin.Context) {
+	fmt.Println("Hello, I am going to publish")
+
 	// 1.获取参数并验证参数
 	video := new(module.Video)
 	video.Title = c.PostForm("title")
