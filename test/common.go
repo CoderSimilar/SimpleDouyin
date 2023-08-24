@@ -1,12 +1,13 @@
 package test
 
 import (
-	"github.com/gavv/httpexpect/v2"
 	"net/http"
 	"testing"
+
+	"github.com/gavv/httpexpect/v2"
 )
 
-var serverAddr = "${paas_url}"
+var serverAddr = "http://127.0.0.1"
 var testUserA = "douyinTestUserA"
 var testUserB = "douyinTestUserB"
 
