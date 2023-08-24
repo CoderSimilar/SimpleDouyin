@@ -1,12 +1,22 @@
 package main
 
 import (
-	"net/http"
-
 	"SimpleDouyin/controller"
 	"SimpleDouyin/repository"
+	"SimpleDouyin/service"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
+
+func main() {
+	go service.RunMessageServer()
+
+	r := gin.Default()
+
+	initRouter(r)
+
+	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+}
 
 func initRouter(r *gin.Engine) {
 	// public directory is used to serve static resources
@@ -24,7 +34,7 @@ func initRouter(r *gin.Engine) {
 
 	// basic apis
 	apiRouter.GET("/LarryTest/", repository.LarryTest)
-	apiRouter.GET("/SimilarTest/",controller.SimilarTest)
+	apiRouter.GET("/SimilarTest/", controller.SimilarTest)
 	apiRouter.GET("/feed/", controller.Feed)
 	apiRouter.GET("/user/", controller.UserInfo)
 	apiRouter.POST("/user/register/", controller.Register)
