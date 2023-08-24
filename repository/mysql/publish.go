@@ -30,6 +30,6 @@ func GetPublishListByUserId(authorId int64) (videolist *module.VideoList, err er
 	if errors.Is(err, gorm.ErrRecordNotFound) { // find未找到
 		return nil, errors.New("user doesn't have videos")
 	}
-	videolist.AllVideoes = videos
+	videolist.AllVideos = videos
 	return
 }

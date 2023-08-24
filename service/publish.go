@@ -38,7 +38,7 @@ func Publish(video *module.Video, c *gin.Context) (err error) {
 	// 1.提取视频
 	data, err := c.FormFile("data") // c.FormFile()接收文件，c.PostForm()接收param。data是手机上的视频文件。
 	if err != nil {
-		return 
+		return
 	}
 
 	// 2.构建视频和封面的上传路径
@@ -51,7 +51,7 @@ func Publish(video *module.Video, c *gin.Context) (err error) {
 	finalName := fmt.Sprintf("%d_%s", video.AuthorId, strings.TrimSuffix(fileName, fileSuffix)) // 去除后缀
 	videoName := finalName + fileSuffix
 	coverName := finalName + coverSuffix
-	saveVideoFile := filepath.Join("./public/videos/", videoName)  // 视频存储路径
+	saveVideoFile := filepath.Join("./public/videos/", videoName) // 视频存储路径
 	saveCoverFile := filepath.Join("./public/covers/", coverName) // 封面存储路径
 	fmt.Printf("finalName = %s, saveVideoFile = %s, saveCoverFile = %s\n ", finalName, saveVideoFile, saveCoverFile)
 
@@ -90,9 +90,9 @@ func PublishList(userId int64) (videoList *module.VideoList, err error) {
 	if err != nil {
 		return
 	}
-	for index := range videoList.AllVideoes {
-		videoList.AllVideoes[index].Author.UserId = userId
-		mysql.GetUserInfo(&videoList.AllVideoes[index].Author)
+	for index := range videoList.AllVideos {
+		videoList.AllVideos[index].Author.UserId = userId
+		mysql.GetUserInfo(&videoList.AllVideos[index].Author)
 	}
 	return videoList, err
 }
@@ -130,7 +130,7 @@ func SavePublishToMysql(video *module.Video) (err error) {
 	}
 
 	// 2.生成video id
-	video.Id = module.GenID()
+	video.ID = uint(module.GenID())
 	// video.UpdateTime = time.Time{}
 	// 3.写入数据库
 	return mysql.CreatePublish(video)
