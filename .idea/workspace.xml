@@ -4,12 +4,19 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1b318c5-09ef-45d6-8da0-18945d529d90" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/controller/like.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controller/mysql.go" afterDir="false" />
+    <list default="true" id="b1b318c5-09ef-45d6-8da0-18945d529d90" name="Changes" comment="修复了点赞和评论的相关错误">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controller/comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/comment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/common.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controller/demo_data.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/demo_data.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/like.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/like.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/publish.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/publish.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/module/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/module/common.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/module/snowflake.go" beforeDir="false" afterPath="$PROJECT_DIR$/module/snowflake.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repository/mysql/publish.go" beforeDir="false" afterPath="$PROJECT_DIR$/repository/mysql/publish.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/publish.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/publish.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +53,7 @@
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "C:/Users/KreanXie/GolandProjects/SimpleDouyin",
+    "last_opened_file_path": "C:/Users/KreanXie/GolandProjects/LocalSimpleDouyin",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm"
@@ -78,6 +85,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="修复了点赞和评论的相关错误" />
+    <option name="LAST_COMMIT_MESSAGE" value="修复了点赞和评论的相关错误" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

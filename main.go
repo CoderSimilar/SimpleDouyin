@@ -1,21 +1,13 @@
 package main
 
 import (
-<<<<<<< HEAD
 	"SimpleDouyin/controller"
-	"SimpleDouyin/repository"
-	"SimpleDouyin/service"
-	"github.com/gin-gonic/gin"
-	"net/http"
-)
-
-func main() {
-=======
-	"fmt"
 	"SimpleDouyin/module"
 	"SimpleDouyin/repository/mysql"
 	"SimpleDouyin/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func main() {
@@ -33,8 +25,7 @@ func main() {
 		fmt.Printf("init snowflake failed, err:%v\n", err)
 		return
 	}
-	
->>>>>>> origin/master
+
 	go service.RunMessageServer()
 
 	r := gin.Default()
@@ -43,7 +34,6 @@ func main() {
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
-<<<<<<< HEAD
 
 func initRouter(r *gin.Engine) {
 	// public directory is used to serve static resources
@@ -60,28 +50,32 @@ func initRouter(r *gin.Engine) {
 	apiRouter := r.Group("/douyin")
 
 	// basic apis
-	apiRouter.GET("/LarryTest/", repository.LarryTest)
-	apiRouter.GET("/SimilarTest/", controller.SimilarTest)
+	// apiRouter.GET("/LarryTest/", repository.LarryTest)
 	apiRouter.GET("/feed/", controller.Feed)
-	apiRouter.GET("/user/", controller.UserInfo)
 	apiRouter.POST("/user/register/", controller.Register)
 	apiRouter.POST("/user/login/", controller.Login)
-	apiRouter.POST("/publish/action/", controller.Publish)
-	apiRouter.GET("/publish/list/", controller.PublishList)
 
-	// extra apis - I
-	apiRouter.POST("/favorite/action/", controller.FavoriteAction)
-	apiRouter.GET("/favorite/list/", controller.FavoriteList)
-	apiRouter.POST("/comment/action/", controller.CommentAction)
 	apiRouter.GET("/comment/list/", controller.CommentList)
 
-	// extra apis - II
-	apiRouter.POST("/relation/action/", controller.RelationAction)
-	apiRouter.GET("/relation/follow/list/", controller.FollowList)
-	apiRouter.GET("/relation/follower/list/", controller.FollowerList)
-	apiRouter.GET("/relation/friend/list/", controller.FriendList)
-	apiRouter.GET("/message/chat/", controller.MessageChat)
-	apiRouter.POST("/message/action/", controller.MessageAction)
+	// 使用中间件 -- 查询用户的信息，并返回
+	apiRouter.Use(module.AuthMiddleWare())
+	{
+		apiRouter.GET("/user/", controller.UserInfo)
+		apiRouter.POST("/publish/action/", controller.Publish)
+		apiRouter.GET("/publish/list/", controller.PublishList)
+
+		// extra apis - I
+		apiRouter.POST("/favorite/action/", controller.FavoriteAction)
+		apiRouter.GET("/favorite/list/", controller.FavoriteList)
+		apiRouter.POST("/comment/action/", controller.CommentAction)
+
+		// extra apis - II
+		apiRouter.POST("/relation/action/", controller.RelationAction)
+		apiRouter.GET("/relation/follow/list/", controller.FollowList)
+		apiRouter.GET("/relation/follower/list/", controller.FollowerList)
+		apiRouter.GET("/relation/friend/list/", controller.FriendList)
+		apiRouter.GET("/message/chat/", controller.MessageChat)
+		apiRouter.POST("/message/action/", controller.MessageAction)
+	}
+
 }
-=======
->>>>>>> origin/master
