@@ -77,6 +77,6 @@ func PublishList(c *gin.Context) {
 		Response: module.Response{
 			StatusCode: 0,
 		},
-		VideoList: data.AllVideoes,
+		VideoList: data.AllVideos,
 	})
 }
