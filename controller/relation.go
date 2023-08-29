@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"SimpleDouyin/demoData"
 	"SimpleDouyin/module"
 	"net/http"
 
@@ -29,7 +30,7 @@ func FollowList(c *gin.Context) {
 		Response: module.Response{
 			StatusCode: 0,
 		},
-		UserList: []module.User{DemoUser},
+		UserList: []module.User{demoData.DemoUser},
 	})
 }
 
@@ -39,7 +40,7 @@ func FollowerList(c *gin.Context) {
 		Response: module.Response{
 			StatusCode: 0,
 		},
-		UserList: []module.User{DemoUser},
+		UserList: []module.User{demoData.DemoUser},
 	})
 }
 
@@ -49,6 +50,6 @@ func FriendList(c *gin.Context) {
 		Response: module.Response{
 			StatusCode: 0,
 		},
-		UserList: []module.User{DemoUser},
+		UserList: []module.User{demoData.DemoUser},
 	})
 }

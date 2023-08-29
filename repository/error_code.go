@@ -15,5 +15,10 @@ var (
 
 	ErrorInvalidVideoFormat = errors.New("invalid Video Format")
 
+	ErrorVideosEmpty = errors.New("no Videos in Database")
+
 	ErrorGenPicture = errors.New("picture generate error")
+
+	// 交互
+	ErrorLike = errors.New("fail to like video")
 )

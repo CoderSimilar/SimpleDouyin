@@ -14,12 +14,12 @@ type Video struct {
 	Id 			  int64  `json:"id" gorm:"primarykey"`
 	AuthorId      int64  `json:"-" gorm:"not null"`
 	Author        User   `json:"author" gorm:"foreignKey:AuthorId"`
-	Title         string `json:"title"`
 	PlayUrl       string `json:"play_url,omitempty" binding:"required"`
 	CoverUrl      string `json:"cover_url,omitempty" binding:"required"`
 	FavoriteCount int64  `json:"favorite_count"`
 	CommentCount  int64  `json:"comment_count"`
 	IsFavorite 	  bool   `json:"is_favorite"`
+	Title         string `json:"title"`
 	StorePath     string `json:"-"`
 }
 
@@ -30,13 +30,13 @@ type VideoList struct {
 
 type UserVideoRelation struct {
 	gorm.Model
-	Token      string `json:"token"`
-	VideoId    int    `json:"video_id" gorm:"column:VideoId"`
-	IsFavorite bool   `json:"is_favorite" gorm:"column:IsFavorite"`
+	UserId      int64  	`json:"user_id"`
+	VideoId     int64     `json:"video_id" gorm:"column:video_id"`
+	IsFavorite  bool    `json:"is_favorite" gorm:"column:is_favorite"`
 }
 
 func (UserVideoRelation) TableName() string {
-	return "user_video_relation"
+	return "user_video_relations"
 }
 
 type Comment struct {
@@ -61,7 +61,7 @@ type User struct {
 	Signature       string `json:"signature"`                        // 个人简介
 	TotalFavorited  int    `json:"total_favorited" gorm:"default:0"` // 获赞数量
 	WorkCount       int    `json:"work_count"`                       // 作品数量
-	FavoriteCount   int64  `json:"favorite_count"`                   // 点赞数量
+	FavoriteCount   int    `json:"favorite_count"`                   // 点赞数量
 	Token           string `json:"-"`
 }
 

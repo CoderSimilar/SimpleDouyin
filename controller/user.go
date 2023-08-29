@@ -1,11 +1,12 @@
 package controller
 
 import (
+	"SimpleDouyin/middleware"
 	"SimpleDouyin/module"
 	"SimpleDouyin/repository"
 	"SimpleDouyin/service"
 	"errors"
-	"fmt"
+	// "fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -107,11 +108,11 @@ func Login(c *gin.Context) {
 		Token:    user.Token,
 	})
 
-}
+ }
 
 func UserInfo(c *gin.Context) {
 	// 1.获取当前用户的id
-	userId, err := GetCurrentUserId(c)
+	userId, err := middleware.GetCurrentUserId(c)
 	if err != nil {
 		c.JSON(http.StatusOK, module.UserResponse{
 			Response: module.Response{StatusCode: 1, StatusMsg: "User need login"},
@@ -121,8 +122,7 @@ func UserInfo(c *gin.Context) {
 
 	// 2.业务逻辑
 	user, err := service.UserInfo(userId)
-	fmt.Printf("user = %v\n", user)
-	if err != nil {
+  	if err != nil {
 		c.JSON(http.StatusOK, module.UserResponse{
 			Response: module.Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
 		})

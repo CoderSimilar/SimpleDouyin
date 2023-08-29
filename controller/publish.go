@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"SimpleDouyin/middleware"
 	"SimpleDouyin/module"
 	"SimpleDouyin/service"
 	"fmt"
@@ -23,13 +24,14 @@ func Publish(c *gin.Context) {
 	video := new(module.Video)
 	video.Title = c.PostForm("title")
 
-	userId, err := GetCurrentUserId(c) // 获取视频发布者的ID
+	userId, err := middleware.GetCurrentUserId(c) // 获取视频发布者的ID
 	if err != nil {
 		c.JSON(http.StatusOK, module.Response{
 			StatusCode: 1,
 			StatusMsg:  "User need login",
 		})
 	}
+	fmt.Println(userId)
 	video.AuthorId = userId
 
 	// 2.业务处理
