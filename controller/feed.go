@@ -1,7 +1,13 @@
 package controller
 
 import (
+	"SimpleDouyin/demoData"
+	"SimpleDouyin/middleware"
 	"SimpleDouyin/module"
+	"SimpleDouyin/service"
+	"fmt"
+
+	// "fmt"
 	"net/http"
 	"time"
 
@@ -16,9 +22,30 @@ type FeedResponse struct {
 
 // Feed same demo video list for every request
 func Feed(c *gin.Context) {
+	fmt.Println("Welcome to Douyin!")
+	userId, err := middleware.GetCurrentUserId(c)
+	fmt.Println(userId)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusOK, FeedResponse{
+			Response:  module.Response{StatusCode: 0},
+			VideoList: demoData.DemoVideos,
+			NextTime:  time.Now().Unix(),
+		})
+		return
+	}
+	token := c.Query("token")
+	video_list, err := service.Feed(userId, token)
+	if err != nil {
+		c.JSON(http.StatusOK, FeedResponse{
+			Response:  module.Response{StatusCode: 1, StatusMsg: "Fail to Get Videos!"},
+			VideoList: nil,
+			NextTime:  time.Now().Unix(),
+		})
+	}
 	c.JSON(http.StatusOK, FeedResponse{
 		Response:  module.Response{StatusCode: 0},
-		VideoList: DemoVideos,
+		VideoList: *video_list,
 		NextTime:  time.Now().Unix(),
 	})
 }

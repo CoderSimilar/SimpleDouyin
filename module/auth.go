@@ -12,6 +12,13 @@ func AuthMiddleWare() func(c *gin.Context) {
 		if token == "" {
 			token = c.PostForm("token")
 		}
+		if token == "" {
+			c.JSON(http.StatusOK, UserLoginResponse{
+				Response: Response{StatusCode: 404, StatusMsg: "User didn't login!"},
+			})
+			c.Abort()
+			return
+		}
 		mc, err := ParseToken(token)
 		if err != nil {
 			c.JSON(http.StatusOK, UserLoginResponse{

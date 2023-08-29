@@ -13,6 +13,7 @@ func CheckVideoExist(authorId int64, playUrl string) (err error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
+	
 	return repository.ErrorVideoExist
 }
 

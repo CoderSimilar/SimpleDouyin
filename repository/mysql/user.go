@@ -13,7 +13,7 @@ const secret = "SimpleDouyin"
 // checkUserExist 判断用户是否存在
 func CheckUserExist(username string) (err error) {
 	// 定义一个具体的user
-	err = DB.Where("name=?", username).First(&module.User{}).Error
+	err = DB.Where("name=?", username).Find(&module.User{}).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil
 	}

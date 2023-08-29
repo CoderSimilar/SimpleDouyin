@@ -1,6 +1,7 @@
 package service
 
 import (
+	// "SimpleDouyin/middleware"
 	"SimpleDouyin/module"
 	"SimpleDouyin/repository"
 	"SimpleDouyin/repository/mysql"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
 	// "time"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
@@ -78,6 +80,8 @@ func Publish(video *module.Video, c *gin.Context) (err error) {
 	if err = SavePublishToMysql(video); err != nil {
 		return
 	}
+
+
 	return
 
 	// 3和4是原子操作 ？
@@ -94,6 +98,7 @@ func PublishList(userId int64) (videoList *module.VideoList, err error) {
 		videoList.AllVideos[index].Author.UserId = userId
 		mysql.GetUserInfo(&videoList.AllVideos[index].Author)
 	}
+	// fmt.Println(videoList)
 	return videoList, err
 }
 
