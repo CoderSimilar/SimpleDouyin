@@ -9,7 +9,8 @@ import (
 )
 
 func CheckVideoExist(authorId int64, playUrl string) (err error) {
-	err = DB.Where("author_id=? and play_url=?", authorId, playUrl).First(&module.Video{}).Error
+	// 用Find，找不到不会报错
+	err = DB.Where("author_id=? and play_url=?", authorId, playUrl).Find(&module.Video{}).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
