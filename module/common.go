@@ -31,7 +31,7 @@ type VideoList struct {
 type UserVideoRelation struct {
 	gorm.Model
 	UserId      int64  	`json:"user_id"`
-	VideoId     int64     `json:"video_id" gorm:"column:video_id"`
+	VideoId     int64   `json:"video_id" gorm:"column:video_id"`
 	IsFavorite  bool    `json:"is_favorite" gorm:"column:is_favorite"`
 }
 
@@ -40,12 +40,19 @@ func (UserVideoRelation) TableName() string {
 }
 
 type Comment struct {
-	gorm.Model
-	CommentId  string `json:"comment_id"`        // 要删除的评论id，当ActionType为false时有效
-	VideoId    string `json:"video_id"`          // 所属的视频Id
-	User       User   `json:"user"`              // 用户Id
-	Content    string `json:"content,omitempty"` // 评论内容，当ActionType为true时有效
-	ActionType string `json:"action_type"`       // 发布时为"1"，删除时为"2"
+	gorm.Model 			`json:"-"`
+	CommentId  	int64  	`json:"id,omitempty" gorm:"unique"`        	// 评论id，当ActionType为false时有效
+	VideoId    	int64 	`json:"-" bind:"required"`          		// 所属的视频Id
+	UserId      int64   `json:"-" gorm:"user_id"`					// 用户id，将其设置成外键
+	User 		User 	`json:"user" gorm:"foreignKey:UserId"`		// 用户
+	Content    	string 	`json:"content,omitempty" binding:"required;oneof=1 2" gorm:"content"` // 评论内容，当ActionType为true时有效
+	ActionType 	string 	`json:"-"`       							// 发布时为"1"，删除时为"2"
+	CreatedAtString 	string 	`json:"create_date"`
+}
+
+type CommentList struct {
+	VideoId     int64 `json:"-"`
+	AllComments []Comment
 }
 
 type User struct {

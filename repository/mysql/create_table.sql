@@ -49,23 +49,24 @@ CREATE TABLE `videos` (
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   `comment_id` bigint DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
+  `author_id` bigint DEFAULT NULL,
   `video_id` bigint DEFAULT NULL,
   `content` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_comments_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
-CREATE TABLE `favorite_videos` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
+
+CREATE TABLE `user_video_relations` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
-  `video_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_favorite_videos_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `user_id` bigint(20) DEFAULT NULL,
+  `video_id` bigint(20) DEFAULT NULL,
+  `is_favorite` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8
 
  */
 

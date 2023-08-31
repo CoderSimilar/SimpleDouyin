@@ -40,7 +40,7 @@ func deleteLike(newRelation *module.UserVideoRelation) (err error) {
 	}
 
 	// 设置is_favorited为false
-	if err = DB.Where("user_id = ? AND video_id = ? AND deleted_at IS NOT NULL", newRelation.UserId, newRelation.VideoId).
+	if err = DB.Model(&module.UserVideoRelation{}).Where("user_id = ? AND video_id = ? AND deleted_at IS NOT NULL", newRelation.UserId, newRelation.VideoId).
 	Update("is_favorite", false).Error; err != nil {
 		return err
 	}

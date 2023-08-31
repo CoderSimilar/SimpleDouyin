@@ -24,7 +24,7 @@ func initRouter(r *gin.Engine) {
 
 	// basic apis
 	// apiRouter.GET("/LarryTest/", repository.LarryTest)
-	apiRouter.GET("/feed/", controller.Feed)
+	
 	apiRouter.POST("/user/register/", controller.Register)
 	apiRouter.POST("/user/login/", controller.Login)
 	
@@ -35,6 +35,7 @@ func initRouter(r *gin.Engine) {
 	// 使用中间件 -- 查询用户的信息，并返回
 	apiRouter.Use(module.AuthMiddleWare())
 	{
+		apiRouter.GET("/feed/", controller.Feed)
 		apiRouter.GET("/user/", controller.UserInfo)
 		apiRouter.POST("/publish/action/", controller.Publish)
 		apiRouter.GET("/publish/list/", controller.PublishList)

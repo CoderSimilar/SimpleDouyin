@@ -3,6 +3,7 @@ package service
 import (
 	"SimpleDouyin/module"
 	"SimpleDouyin/repository/mysql"
+	"fmt"
 )
 
 func LikeAction(newRelation *module.UserVideoRelation) (err error) {
@@ -12,10 +13,19 @@ func LikeAction(newRelation *module.UserVideoRelation) (err error) {
 		return err
 	} else if exists {
 		// 点赞已存在
-		return nil
+		if newRelation.IsFavorite {
+			return nil
+		}else {
+			if err := mysql.LikeHandle(newRelation); err != nil {
+				return err
+			}
+			return mysql.UpdateFavotiteCount(newRelation)
+		}
+		
 	} else {
 		// 点赞不存在
 		// 2，处理点赞纪录
+		fmt.Println(newRelation.IsFavorite)
 		if err := mysql.LikeHandle(newRelation); err != nil {
 			return err
 		}

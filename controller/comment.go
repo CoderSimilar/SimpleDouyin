@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"SimpleDouyin/middleware"
 	"SimpleDouyin/module"
-	"SimpleDouyin/repository/mysql"
-	"github.com/gin-gonic/gin"
+	"SimpleDouyin/service"
+	"fmt"
 	"net/http"
-	"sort"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type CommentActionResponse struct {
@@ -21,14 +23,9 @@ type CommentListResponse struct {
 
 // CommentAction no practical effect, just check if token is valid
 func CommentAction(c *gin.Context) {
-	token := c.Query("token")
-
-	if _, err := module.ParseToken(token); err != nil {
-		c.JSON(http.StatusBadRequest, module.Response{StatusCode: 1, StatusMsg: err.Error()})
-		return
-	}
-
-	videoId, err := strconv.Atoi(c.Query("video_id"))
+	// 1，获取参数
+	commentRecord := new(module.Comment)
+	videoId, err := strconv.ParseInt(c.Query("video_id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, CommentActionResponse{
 			module.Response{StatusCode: 1, StatusMsg: "Illegal video-id"},
@@ -36,113 +33,89 @@ func CommentAction(c *gin.Context) {
 		})
 		return
 	}
+	commentRecord.VideoId = videoId
 	actionType := c.Query("action_type")
-	commentText := c.Query("comment_text")
-	ci := c.Query("comment_id")
-	commentId, err := strconv.Atoi(ci)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, CommentActionResponse{
-			module.Response{StatusCode: 1, StatusMsg: "Illegal comment-id"},
-			module.Comment{},
-		})
-	}
-
-	if _, exist := usersLoginInfo[token]; !exist {
-		c.JSON(http.StatusBadRequest, CommentActionResponse{
-			module.Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
-			module.Comment{},
-		})
-		return
-	}
+	commentRecord.ActionType = actionType
 
 	switch actionType {
 	case "1":
-		comment, err := createComment(videoId, commentText)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, CommentActionResponse{
-				module.Response{StatusCode: 1, StatusMsg: "Comment failed"},
-				module.Comment{},
-			})
-		} else {
-			c.JSON(http.StatusOK, CommentActionResponse{
-				module.Response{StatusCode: 0, StatusMsg: "Comment success"},
-				comment,
-			})
-		}
+		commentText := c.Query("comment_text")
+		commentRecord.Content = commentText
 	case "2":
-		err := deleteComment(videoId, commentId)
+		commentId, err := strconv.ParseInt(c.Query("comment_id"), 10, 64) // 要删除的评论id
 		if err != nil {
 			c.JSON(http.StatusBadRequest, CommentActionResponse{
-				module.Response{StatusCode: 1, StatusMsg: "Delete fail"},
-				module.Comment{},
-			})
-		} else {
-			c.JSON(http.StatusOK, CommentActionResponse{
-				module.Response{StatusCode: 0, StatusMsg: "Delete success"},
+				module.Response{StatusCode: 1, StatusMsg: "Illegal comment-id"},
 				module.Comment{},
 			})
 		}
+		commentRecord.CommentId = commentId
 	default:
 		c.JSON(http.StatusBadRequest, CommentActionResponse{
 			module.Response{StatusCode: 1, StatusMsg: "Illegal action-type"},
 			module.Comment{},
 		})
+
 	}
+
+	// 2，获取当前请求用户的id
+	userId, err := middleware.GetCurrentUserId(c)
+	if err != nil {
+		c.JSON(http.StatusOK, module.Response{StatusCode: 1, StatusMsg: "User need login"})
+		return
+	}
+	fmt.Println(userId)
+	commentRecord.User.UserId = userId
+	commentRecord.UserId = userId
+	
+	
+	// 3，业务处理
+	if err = service.CommentAction(commentRecord); err != nil {
+		c.JSON(http.StatusOK, module.Response{StatusCode: 1, StatusMsg: err.Error()})
+		return
+	}
+
+	// 4，返回响应
+	if commentRecord.ActionType == "1" {
+		c.JSON(http.StatusOK, CommentActionResponse{Response: module.Response{StatusCode: 0},
+			Comment: module.Comment{
+				CommentId: commentRecord.CommentId,
+				UserId: commentRecord.UserId,
+				User: commentRecord.User,
+				Content: commentRecord.Content,
+				ActionType: "1",
+				CreatedAtString: commentRecord.CreatedAtString,
+			},
+		})
+	}
+	c.JSON(http.StatusOK, module.Response{StatusCode: 0, StatusMsg: "successfully"})
+	
+
+	
 }
 
 // CommentList all videos have same demo comment list
 func CommentList(c *gin.Context) {
-	token := c.Query("token")
-
-	if _, exist := usersLoginInfo[token]; !exist {
-		c.JSON(http.StatusOK, module.Response{StatusCode: 1, StatusMsg: "User doesn't exist"})
+	// 1，获取参数
+	videoId, err := strconv.ParseInt(c.Query("video_id"), 10, 64) 
+	if err != nil {
+		c.JSON(http.StatusOK, module.Response{StatusCode: 1, StatusMsg: err.Error()})
 		return
 	}
 
-	videoId := c.Query("video_id")
-
-	var comments []module.Comment
-	result := mysql.DB.First(&comments, videoId)
-	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, CommentListResponse{
-			module.Response{StatusCode: 1, StatusMsg: result.Error.Error()},
-			comments,
-		})
-	}
-	sort.Slice(comments, func(i, j int) bool {
-		return comments[i].Model.CreatedAt.After(comments[j].Model.CreatedAt)
-	})
-	c.JSON(http.StatusOK, CommentListResponse{
-		module.Response{StatusCode: 0, StatusMsg: "List comment success"},
-		comments,
-	})
-}
-
-func createComment(videoId int, commentText string) (module.Comment, error) {
-	comment := module.Comment{
-		VideoId:    strconv.Itoa(videoId),
-		Content:    commentText,
-		ActionType: "1",
-	}
-	var video module.Video
-	result := mysql.DB.First(&video, videoId)
-	if result.Error != nil {
-		return comment, result.Error
-	}
-
-	video.CommentCount++
-	err := mysql.DB.Create(&comment).Error
+	// 2，业务处理
+	commentList, err := service.CommentList(videoId)
 	if err != nil {
-		return comment, err
+		c.JSON(http.StatusOK, module.Response{StatusCode: 1, StatusMsg: err.Error()})
+		return
 	}
-	result = mysql.DB.Save(&video)
-	if result.Error != nil {
-		return comment, result.Error
-	}
-	return comment, nil
+
+	// 3，返回响应
+	c.JSON(http.StatusOK, CommentListResponse{
+		Response:    module.Response{StatusCode: 0},
+		CommentList: commentList.AllComments,
+		//CommentList: DemoComments,
+	})
+	
 }
 
-func deleteComment(videoId int, commentId int) error {
-	err := mysql.DB.Where("VideoId = ? AND CommentId = ?1", videoId, commentId).Delete(&module.Comment{}).Error
-	return err
-}
