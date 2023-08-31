@@ -8,7 +8,7 @@ import (
 func CommentAction(commentRecord *module.Comment) (err error) {
 	// 1，写入评论
 	if commentRecord.ActionType == "1" {
-		commentRecord.CommentId = module.GenID()
+		commentRecord.Id = module.GenID()
 		err = mysql.GetUserInfo(&commentRecord.User)
 		if err != nil {
 			return err
@@ -30,5 +30,6 @@ func CommentAction(commentRecord *module.Comment) (err error) {
 }
 
 func CommentList(videoId int64) (commentlist *module.CommentList, err error) {
-	return mysql.CommentsQuery(videoId)
+	commentlist,err = mysql.CommentsQuery(videoId)
+	return 
 }

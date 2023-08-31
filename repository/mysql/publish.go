@@ -4,13 +4,14 @@ import (
 	"SimpleDouyin/module"
 	"SimpleDouyin/repository"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 )
 
 func CheckVideoExist(authorId int64, playUrl string) (err error) {
 	// 用Find，找不到不会报错
-	err = DB.Where("author_id=? and play_url=?", authorId, playUrl).Find(&module.Video{}).Error
+	err = DB.Where("author_id=? and play_url=?", authorId, playUrl).First(&module.Video{}).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
@@ -34,4 +35,9 @@ func GetPublishListByUserId(authorId int64) (videolist *module.VideoList, err er
 	}
 	videolist.AllVideos = videos
 	return
+}
+
+func UpdateWorkCount(author *module.User) error {
+	fmt.Println(author)
+	return DB.Model(author).Where("id=?", author.Id).Update("work_count", author.WorkCount + 1).Error
 }

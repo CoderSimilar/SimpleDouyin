@@ -11,14 +11,14 @@ type Response struct {
 
 type Video struct {
 	gorm.Model    `json:"-"`
-	Id 			  int64  `json:"id" gorm:"primarykey"`
+	Id            int64  `json:"id" gorm:"primarykey"`
 	AuthorId      int64  `json:"-" gorm:"not null"`
 	Author        User   `json:"author" gorm:"foreignKey:AuthorId"`
 	PlayUrl       string `json:"play_url,omitempty" binding:"required"`
 	CoverUrl      string `json:"cover_url,omitempty" binding:"required"`
 	FavoriteCount int64  `json:"favorite_count"`
 	CommentCount  int64  `json:"comment_count"`
-	IsFavorite 	  bool   `json:"is_favorite"`
+	IsFavorite    bool   `json:"is_favorite" gorm:"column:is_favorite"`
 	Title         string `json:"title"`
 	StorePath     string `json:"-"`
 }
@@ -30,9 +30,9 @@ type VideoList struct {
 
 type UserVideoRelation struct {
 	gorm.Model
-	UserId      int64  	`json:"user_id"`
-	VideoId     int64   `json:"video_id" gorm:"column:video_id"`
-	IsFavorite  bool    `json:"is_favorite" gorm:"column:is_favorite"`
+	UserId     int64 `json:"user_id"`
+	VideoId    int64 `json:"video_id" gorm:"column:video_id"`
+	IsFavorite bool  `json:"is_favorite" gorm:"column:is_favorite"`
 }
 
 func (UserVideoRelation) TableName() string {
@@ -40,14 +40,14 @@ func (UserVideoRelation) TableName() string {
 }
 
 type Comment struct {
-	gorm.Model 			`json:"-"`
-	CommentId  	int64  	`json:"id,omitempty" gorm:"unique"`        	// 评论id，当ActionType为false时有效
-	VideoId    	int64 	`json:"-" bind:"required"`          		// 所属的视频Id
-	UserId      int64   `json:"-" gorm:"user_id"`					// 用户id，将其设置成外键
-	User 		User 	`json:"user" gorm:"foreignKey:UserId"`		// 用户
-	Content    	string 	`json:"content,omitempty" binding:"required;oneof=1 2" gorm:"content"` // 评论内容，当ActionType为true时有效
-	ActionType 	string 	`json:"-"`       							// 发布时为"1"，删除时为"2"
-	CreatedAtString 	string 	`json:"create_date"`
+	gorm.Model      `json:"-"`
+	Id       		int64  `json:"id,omitempty" gorm:"unique"`    // 评论id，当ActionType为false时有效
+	VideoId         int64  `json:"-" bind:"required"`             // 所属的视频Id
+	UserId          int64  `json:"-" gorm:"column:user_id"`       // 用户id，将其设置成外键
+	User            User   `json:"user" gorm:"foreignKey:UserId"` // 用户
+	Content         string `json:"content,omitempty" binding:"required;oneof=1 2" gorm:"column:content"` // 评论内容，当ActionType为true时有效
+	ActionType      string `json:"-"`                                                                    // 发布时为"1"，删除时为"2"
+	CreatedAtString string `json:"create_date"`
 }
 
 type CommentList struct {
@@ -57,8 +57,8 @@ type CommentList struct {
 
 type User struct {
 	gorm.Model      `json:"-"`
-	UserId          int64  `json:"id,omitempty" gorm:"index:idx_user_id"`                         // 用户id
-	Name            string `json:"name" binding:"required" gorm:"unique;not null;index:idx_name"` // 用户名称
+	Id              int64  `json:"id,omitempty" gorm:"primaryKey index:idx_user_id"`                                // 用户id
+	Name            string `json:"name" binding:"required" gorm:"column:username; unique; not null; index:idx_name"`// 用户名称
 	Password        string `json:"-" binding:"required" gorm:"not null"`
 	FollowCount     int64  `json:"follow_count" gorm:"default:0"`    // 关注总数
 	FollowerCount   int64  `json:"follower_count" gorm:"default:0"`  // 粉丝总数

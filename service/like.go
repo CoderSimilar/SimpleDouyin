@@ -46,7 +46,7 @@ func LikeList(userId int64) (videoList *module.VideoList, err error) {
 	}
 
 	for index := range videoList.AllVideos {
-		videoList.AllVideos[index].Author.UserId = userId
+		videoList.AllVideos[index].Author.Id = userId
 		mysql.GetUserInfo(&videoList.AllVideos[index].Author)
 	}
 	return videoList, err

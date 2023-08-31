@@ -17,7 +17,7 @@ import (
 // test data: username=zhanglei, password=douyin
 var usersLoginInfo = map[string]module.User{
 	"zhangleidouyin": {
-		UserId: 1,
+		Id: 1,
 		Name:   "zhanglei",
 		//FollowCount:   10,
 		//FollowerCount: 5,
@@ -67,7 +67,7 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusOK, module.UserLoginResponse{
 		// 注册成功
 		Response: module.Response{StatusCode: 0},
-		UserId:   newUser.UserId,
+		UserId:   newUser.Id,
 		Token:    newUser.Token,
 	})
 }
@@ -104,7 +104,7 @@ func Login(c *gin.Context) {
 	// 3.返回响应
 	c.JSON(http.StatusOK, module.UserLoginResponse{
 		Response: module.Response{StatusCode: 0, StatusMsg: "successfully"},
-		UserId:   user.UserId,
+		UserId:   user.Id,
 		Token:    user.Token,
 	})
 

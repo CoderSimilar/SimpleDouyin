@@ -17,7 +17,7 @@ func Register(username string, password string) (newUser *module.User, err error
 
 	// 创建User实例
 	newUser = &module.User{
-		UserId:   userIdSequence,
+		Id:   userIdSequence,
 		Name:     username,
 		Password: password,
 	}
@@ -29,7 +29,7 @@ func Register(username string, password string) (newUser *module.User, err error
 	}
 
 	// 4.生成token
-	token, err := module.GenToken(newUser.UserId, newUser.Password)
+	token, err := module.GenToken(newUser.Id, newUser.Password)
 	// 获取token失败
 	if err != nil {
 		panic("failed to generate token")
@@ -51,7 +51,7 @@ func Login(username, password string) (user *module.User, err error) {
 
 	// 2.生成token
 	//token := username + password
-	token, err := module.GenToken(user.UserId, user.Password)
+	token, err := module.GenToken(user.Id, user.Password)
 	if err != nil {
 		fmt.Println("genToken failed")
 		return
@@ -63,7 +63,7 @@ func Login(username, password string) (user *module.User, err error) {
 
 func UserInfo(userId int64) (user *module.User, err error) {
 	user = &module.User{
-		UserId: userId,
+		Id: userId,
 	}
 	err = mysql.GetUserInfo(user)
 	if err != nil {

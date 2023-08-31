@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 func InsertComment(commentRecord *module.Comment) (err error) {
@@ -21,14 +20,12 @@ func InsertComment(commentRecord *module.Comment) (err error) {
 	if err != nil {
 		fmt.Println("创建记录出错：", err)
 	}
-	sqlDB, _ := DB.DB()
-	defer sqlDB.Close()
-	DB.Logger.LogMode(logger.Info)
+	
 	return
 }
 
 func DeleteComment(commentRecord *module.Comment) (err error) {
-	err = DB.Where("comment_id=?", commentRecord.CommentId).Delete(&module.Comment{}).Error
+	err = DB.Where("comment_id=?", commentRecord.Id).Delete(&module.Comment{}).Error
 	return
 }
 
@@ -58,17 +55,19 @@ func findCommentCount(videoId int64) (video *module.Video) {
 }
 
 func CommentsQuery(videoId int64) (commentlist *module.CommentList, err error) {
-	commentList := new(module.CommentList)
+	commentlist = new(module.CommentList)
+	commentlist.VideoId = videoId
 	var comments []module.Comment
 	err = DB.Where("video_id=?", videoId).Order("created_at desc").Find(&comments).Error
+	for _, comment := range comments {
+		comment.User.Id = comment.UserId
+		GetUserInfo(&comment.User)
+		fmt.Println(comment)
+		commentlist.AllComments = append(commentlist.AllComments, comment)
+	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.New("video doesn't have comments")
 	}
-	// for _, comment := range comments {
-	// 	// fmt.Println(comment.User)
-	// 	// GetUserInfo(&comment.User)
-	// }
-	commentList.AllComments = comments
-	fmt.Println(commentList)
+	fmt.Println(commentlist)
 	return
 }

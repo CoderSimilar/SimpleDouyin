@@ -13,7 +13,7 @@ func FeedVideos() (videos *[]module.Video, err error) {
 	videos = new([]module.Video)
 	err = DB.Order("created_at desc").Limit(30).Find(videos).Error
 	for index := range *videos {
-		(*videos)[index].Author.UserId = (*videos)[index].AuthorId
+		(*videos)[index].Author.Id = (*videos)[index].AuthorId
 		GetUserInfo(&(*videos)[index].Author)
 	}
 	// fmt.Println(videos)
