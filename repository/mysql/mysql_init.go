@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	// "SimpleDouyin/module"
+	"SimpleDouyin/module"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -23,10 +23,11 @@ func Init() (err error) {
 	}
 
 	// 自动迁移
-	// err = DB.AutoMigrate(&module.User{}, &module.Video{}, &module.Comment{})
-	// if err != nil {
-	// 	panic("failed to migrate data table")
-	// }
+	// DB.Migrator().CreateTable(&module.User{}, &module.Video{}, &module.Comment{}, &module.UserVideoRelation{})
+	err = DB.AutoMigrate(&module.User{}, &module.Video{}, &module.Comment{}, &module.UserVideoRelation{})
+	if err != nil {
+		panic("failed to migrate data table")
+	}
 	
 	return err
 }
@@ -40,10 +41,10 @@ func connect2mysql() (*gorm.DB, error) {
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
 		  SlowThreshold:              time.Second,   // Slow SQL threshold
-		  LogLevel:                   logger.Info, // Log level
+		  LogLevel:                   logger.Info, 	 // Log level
 		  IgnoreRecordNotFoundError: true,           // Ignore ErrRecordNotFound error for logger
 		  ParameterizedQueries:      true,           // Don't include params in the SQL log
-		  Colorful:                  false,          // Disable color
+		  Colorful:                  true,          // Disable color
 		},
 	  )
 	

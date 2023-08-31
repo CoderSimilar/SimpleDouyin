@@ -95,7 +95,7 @@ func PublishList(userId int64) (videoList *module.VideoList, err error) {
 		return
 	}
 	for index := range videoList.AllVideos {
-		videoList.AllVideos[index].Author.UserId = userId
+		videoList.AllVideos[index].Author.Id = userId
 		mysql.GetUserInfo(&videoList.AllVideos[index].Author)
 	}
 	// fmt.Println(videoList)
@@ -138,5 +138,10 @@ func SavePublishToMysql(video *module.Video) (err error) {
 	video.ID = uint(module.GenID())
 	// video.UpdateTime = time.Time{}
 	// 3.写入数据库
-	return mysql.CreatePublish(video)
+	err = mysql.CreatePublish(video)
+	if err != nil {
+		return 
+	}
+	// 4, 更新作者作品数
+	return mysql.UpdateWorkCount(&video.Author)
 }

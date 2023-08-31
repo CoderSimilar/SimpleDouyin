@@ -49,7 +49,7 @@ func CommentAction(c *gin.Context) {
 				module.Comment{},
 			})
 		}
-		commentRecord.CommentId = commentId
+		commentRecord.Id = commentId
 	default:
 		c.JSON(http.StatusBadRequest, CommentActionResponse{
 			module.Response{StatusCode: 1, StatusMsg: "Illegal action-type"},
@@ -65,7 +65,7 @@ func CommentAction(c *gin.Context) {
 		return
 	}
 	fmt.Println(userId)
-	commentRecord.User.UserId = userId
+	commentRecord.User.Id = userId
 	commentRecord.UserId = userId
 	
 	
@@ -79,7 +79,7 @@ func CommentAction(c *gin.Context) {
 	if commentRecord.ActionType == "1" {
 		c.JSON(http.StatusOK, CommentActionResponse{Response: module.Response{StatusCode: 0},
 			Comment: module.Comment{
-				CommentId: commentRecord.CommentId,
+				Id: commentRecord.Id,
 				UserId: commentRecord.UserId,
 				User: commentRecord.User,
 				Content: commentRecord.Content,
