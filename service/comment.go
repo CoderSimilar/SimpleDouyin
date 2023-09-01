@@ -22,7 +22,9 @@ func CommentAction(commentRecord *module.Comment) (err error) {
 	// 2，删除评论
 	if commentRecord.ActionType == "2" {
 		err = mysql.DeleteComment(commentRecord)
-		return
+		if err != nil {
+			return
+		}
 	}
 
 	// 3，更新video的CommentCount

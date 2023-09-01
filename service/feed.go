@@ -10,7 +10,6 @@ import (
 func Feed(userId int64, token string) (*[]module.Video, error) {
 
 	fmt.Println("userid = ", userId)
-	// fmt.Println("token = ", token)
 	if token == "" {
 		// 用户未登录
 		return mysql.FeedVideos()
