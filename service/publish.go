@@ -2,6 +2,7 @@ package service
 
 import (
 	// "SimpleDouyin/middleware"
+	"SimpleDouyin/middleware"
 	"SimpleDouyin/module"
 	"SimpleDouyin/repository"
 	"SimpleDouyin/repository/mysql"
@@ -42,7 +43,11 @@ func Publish(video *module.Video, c *gin.Context) (err error) {
 	if err != nil {
 		return
 	}
-
+	// 获取当前用户id
+	userId, err := middleware.GetCurrentUserId(c)
+	if err != nil {
+		return err
+	}
 	// 2.构建视频和封面的上传路径
 	fileName := filepath.Base(data.Filename)
 	fileSuffix := filepath.Ext(fileName) // 判断视频后缀
@@ -77,7 +82,7 @@ func Publish(video *module.Video, c *gin.Context) (err error) {
 	// 4.保存视频信息到数据库
 	video.PlayUrl = videoPrefix + videoName
 	video.CoverUrl = coverPrefix + coverName
-	if err = SavePublishToMysql(video); err != nil {
+	if err = SavePublishToMysql(video, userId); err != nil {
 		return
 	}
 
@@ -126,7 +131,7 @@ func GetSnapshot(videoPath, snapshotPath string, frameNum int) (img image.Image,
 }
 
 // SavePublish 数据库的操作
-func SavePublishToMysql(video *module.Video) (err error) {
+func SavePublishToMysql(video *module.Video, userId int64) (err error) {
 	// 数据库的操作
 	// 1.判断相同用户的同一作品是否发布过
 	if err = mysql.CheckVideoExist(video.AuthorId, video.PlayUrl); err != nil {
@@ -136,12 +141,13 @@ func SavePublishToMysql(video *module.Video) (err error) {
 
 	// 2.生成video id
 	video.ID = uint(module.GenID())
-	// video.UpdateTime = time.Time{}
 	// 3.写入数据库
 	err = mysql.CreatePublish(video)
 	if err != nil {
 		return 
 	}
 	// 4, 更新作者作品数
+	video.AuthorId = userId
+	video.Author.Id = userId
 	return mysql.UpdateWorkCount(&video.Author)
 }

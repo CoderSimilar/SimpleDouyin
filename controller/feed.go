@@ -23,29 +23,49 @@ type FeedResponse struct {
 // Feed same demo video list for every request
 func Feed(c *gin.Context) {
 	fmt.Println("Welcome to Douyin!")
-	userId, err := middleware.GetCurrentUserId(c)
-	fmt.Println(userId)
-	if err != nil {
-		fmt.Println(err)
+	token := c.Query("token")
+	// 如果token不是空，代表用户已经登录，需要做身份验证
+	if token != "" {
+		// 获取用户id
+		userId, err := middleware.GetCurrentUserId(c)
+		if err != nil {
+			c.JSON(http.StatusOK, FeedResponse{
+				Response:  module.Response{StatusCode: 1, StatusMsg: "Fail to GetCurrentUserId"},
+				VideoList: demoData.DemoVideos,
+				NextTime:  time.Now().Unix(),
+			})
+			return
+		}
+		video_list, err := service.Feed(userId, token)
+		if err != nil {
+			c.JSON(http.StatusOK, FeedResponse{
+				Response:  module.Response{StatusCode: 1, StatusMsg: "Fail to Get Videos!"},
+				VideoList: demoData.DemoVideos,
+				NextTime:  time.Now().Unix(),
+			})
+		}
 		c.JSON(http.StatusOK, FeedResponse{
 			Response:  module.Response{StatusCode: 0},
-			VideoList: demoData.DemoVideos,
+			VideoList: *video_list,
 			NextTime:  time.Now().Unix(),
 		})
-		return
-	}
-	token := c.Query("token")
-	video_list, err := service.Feed(userId, token)
-	if err != nil {
+	}else {
+		// 用户未登录
+		video_list, err := service.Feed(0, "")
+		if err != nil {
+			c.JSON(http.StatusOK, FeedResponse{
+				Response:  module.Response{StatusCode: 1, StatusMsg: "Fail to Get Videos!"},
+				VideoList: demoData.DemoVideos,
+				NextTime:  time.Now().Unix(),
+			})
+		}
 		c.JSON(http.StatusOK, FeedResponse{
-			Response:  module.Response{StatusCode: 1, StatusMsg: "Fail to Get Videos!"},
-			VideoList: nil,
+			Response:  module.Response{StatusCode: 0},
+			VideoList: *video_list,
 			NextTime:  time.Now().Unix(),
 		})
 	}
-	c.JSON(http.StatusOK, FeedResponse{
-		Response:  module.Response{StatusCode: 0},
-		VideoList: *video_list,
-		NextTime:  time.Now().Unix(),
-	})
+	
+	
+	
 }

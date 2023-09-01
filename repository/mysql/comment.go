@@ -25,7 +25,7 @@ func InsertComment(commentRecord *module.Comment) (err error) {
 }
 
 func DeleteComment(commentRecord *module.Comment) (err error) {
-	err = DB.Where("comment_id=?", commentRecord.Id).Delete(&module.Comment{}).Error
+	err = DB.Where("id=?", commentRecord.Id).Delete(&module.Comment{}).Error
 	return
 }
 
@@ -38,14 +38,15 @@ func UpdateCommentCount(commentRecord *module.Comment) (err error) {
 
 func addCommentCount(commentRecord *module.Comment) (err error) {
 	video := findCommentCount(commentRecord.VideoId)
-	return DB.Model(video).Update("comment_count", video.CommentCount+1).Error
+	return DB.Model(video).Update("comment_count", video.CommentCount + 1).Error
 	//DB.Model(voteVideo).Update("favorite_count", favoriteCount+1)
 	//fmt.Printf("video.FavoriteCount=%d\n", voteVideo.FavoriteCount)
 }
 
 func minusCommentCount(commentRecord *module.Comment) (err error) {
 	video := findCommentCount(commentRecord.VideoId)
-	return DB.Model(video).Update("comment_count", video.CommentCount-1).Error
+	fmt.Println(video.CommentCount)
+	return DB.Model(video).Where("id=?", video.Id).Update("comment_count", video.CommentCount - 1).Error
 }
 
 func findCommentCount(videoId int64) (video *module.Video) {
@@ -62,12 +63,12 @@ func CommentsQuery(videoId int64) (commentlist *module.CommentList, err error) {
 	for _, comment := range comments {
 		comment.User.Id = comment.UserId
 		GetUserInfo(&comment.User)
-		fmt.Println(comment)
+		// fmt.Println(comment)
 		commentlist.AllComments = append(commentlist.AllComments, comment)
 	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.New("video doesn't have comments")
 	}
-	fmt.Println(commentlist)
+	// fmt.Println(commentlist)
 	return
 }
