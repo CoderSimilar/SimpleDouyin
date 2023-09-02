@@ -33,3 +33,23 @@ func AuthMiddleWare() func(c *gin.Context) {
 		c.Next() // 后续的处理请求函数中 可以使用c.Get(CtxtUserIDKey)来获取当前请求的用户信息
 	}
 }
+
+func AuthFeedMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 获取用户token
+		tokenString := c.Query("token")
+		if tokenString == "" {
+			// 用户未登录
+			return
+		}
+		mc, err := ParseToken(tokenString)
+		if err != nil {
+			c.JSON(http.StatusOK, UserLoginResponse{
+				Response: Response{StatusCode: 401, StatusMsg: "Invalid token"},
+			})
+			c.Abort()
+		}
+		c.Set(CurUserId, mc.UserId)
+		c.Next() 
+	}	
+}
