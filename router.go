@@ -31,11 +31,15 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/comment/list/", controller.CommentList)
 
 	
+	apiRouter.Use(module.AuthFeedMiddleware()) 
+	{
+		apiRouter.GET("/feed/", controller.Feed)
+	}
 
 	// 使用中间件 -- 查询用户的信息，并返回
 	apiRouter.Use(module.AuthMiddleWare())
 	{
-		apiRouter.GET("/feed/", controller.Feed)
+		
 		apiRouter.GET("/user/", controller.UserInfo)
 		apiRouter.POST("/publish/action/", controller.Publish)
 		apiRouter.GET("/publish/list/", controller.PublishList)
